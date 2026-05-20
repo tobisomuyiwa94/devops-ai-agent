@@ -1,0 +1,57 @@
+[
+  {
+    "id": "INC-2024-001",
+    "date": "2024-11-14",
+    "title": "Production K8s pods crashing — energy reporting service",
+    "environment": "Production",
+    "severity": "HIGH",
+    "symptoms": "Multiple pods entering CrashLoopBackOff state. Energy reporting dashboard inaccessible for 22 minutes.",
+    "root_cause": "Resource limits set too low (128Mi memory limit). Application memory usage spiked during peak data ingestion window.",
+    "resolution": "Increased memory limit to 512Mi and request to 256Mi. Added HPA to auto-scale during peak windows. Deployed fix in 28 minutes.",
+    "tags": ["kubernetes", "crashloopbackoff", "memory", "resource-limits"]
+  },
+  {
+    "id": "INC-2024-002",
+    "date": "2024-10-22",
+    "title": "Jenkins pipeline broken — artifact push to Nexus failing",
+    "environment": "CI/CD",
+    "severity": "MEDIUM",
+    "symptoms": "All builds succeeding through test stage but failing at artifact publish. Deployment pipeline blocked for 3 hours.",
+    "root_cause": "Nexus repository credentials rotated but not updated in Jenkins credential store. Certificate also expired on Nexus server.",
+    "resolution": "Updated Jenkins credentials with new Nexus service account password. Renewed Nexus TLS certificate. Re-ran affected pipelines.",
+    "tags": ["jenkins", "nexus", "credentials", "certificate", "cicd"]
+  },
+  {
+    "id": "I024-003",
+    "date": "2024-09-08",
+    "title": "AWS EC2 CPU spike — fossil data aggregation service",
+    "environment": "Production",
+    "severity": "HIGH",
+    "symptoms": "CPU utilization hit 98% on m5.xlarge instance running data aggregation service. Response times degraded to 12 seconds.",
+    "root_cause": "Unoptimized SQL query introduced in recent release performing full table scan on 40M row dataset. No index on timestamp column.",
+    "resolution": "Added composite index on timestamp + plant_id columns. Query time reduced from 8.2s to 0.04s. CPU normalized within 5 minutes of index creation.",
+    "tags": ["ec2", "cpu", "database", "sql", "performance", "index"]
+  },
+  {
+    "id": "INC-2024-004",
+    "date": "2024-08-30",
+    "title": "Terraform apply failed — VPC module state lock",
+    "environment": "Staging",
+    "severity": "MEDIUM",
+    "symptoms": "Terraform apply blocked with state lock error. New environment provisioning stopped. DevOps team blocked for 45 minutes.",
+    "root_cause": "Previous terraform apply was interrupted mid-run due to network timeout. State lock was not released automatically.",
+    "resolution": "Confirmed no active Terraform runs. Used terraform force-unlock with the lock ID from the error message. Resumed apply successfully.",
+    "tags": ["terraform", "state-lock", "vpc", "iac"]
+  },
+  {
+    "id": "INC-2024-005",
+    "date": "2024-12-01",
+    "title": "Prometheus alert — generation monitoring service down",
+    "environment": "Production",
+    "severity": "CRITICAL",
+    "symptoms": "Prometheus fired ProdServiceDown alert at 03:14 UTC. Generation monitoring dashboard showed no data. Alert resolved at 03:31 UTC.",
+    "root_cause": "OOM kill on the monitoring service pod. Memory limit was 256Mi but spike to 310Mi occurred during large data batch processing.",
+    "resolution": "Increased memory limit to 512Mi. Added memory-based HPA. Added pre-emptive alert at 80% memory utilization to catch before OOM.",
+    "tags": ["prometheus", "oom", "memory", "kubernetes", "monitoring"]
+  }
+]

@@ -1,0 +1,109 @@
+[
+  {
+    "id": "RB-001",
+    "title": "Kubernetes Pod CrashLoopBackOff",
+    "category": "Kubernetes",
+    "symptoms": ["pod crashloopbackoff", "container restart loop", "pod not starting", "back-off restarting failed container"],
+    "root_causes": ["Misconfigured resource limits", "Application startup failure", "Missing environment variables or secrets", "Liveness probe misconfiguration", "Image pull errors"],
+    "resolution_steps": [
+      "Run: kubectl describe pod <pod-name> -n <namespace> to identify the failure reason",
+      "Check logs: kubectl logs <pod-name> -n <namespace> --previous",
+      "Verify resource limits are not too restrictive: kubectl get pod <pod-name> -o yaml | grep -A5 resources",
+      "Check if required secrets/configmaps exist: kubectl get secrets,configmaps -n <namespace>",
+      "If liveness probe is failing, increase initialDelaySeconds or adjust thresholds",
+      "Redeploy with corrected configuration: kubectl rollout restart deployment/<deployment-name>"
+    ],
+    "severity": "HIGH",
+    "avg_resolution_time": "15-30 minutes"
+  },
+  {
+    "id": "RB-002",
+    "title": "Jenkins Pipeline Build Failure",
+    "category": "CI/CD",
+    "symptoms": ["jenkins build failed", "pipeline failed", "build error", "stage failed", "compilation error"],
+    "root_causes": ["Code compilation errors", "Failed unit tests", "Artifact repository unreachable", "Insufficient build agent resources", "Missing credentials or environment variables"],
+    "resolution_steps": [
+      "Review the Jenkins build log for the specific stage that failed",
+      "Check if Nexus/Artifactory is reachable from the build agent",
+      "Verify credentials are present: Jenkins > Manage Jenkins > Credentials",
+      "Review SonarQube quality gate results if the quality stage failed",
+      "Check build agent resource utilization (CPU/memory)",
+      "Re-run the pipeline after addressing the root cause",
+      "If flaky test, investigate test isolation and add retry logic"
+    ],
+    "severity": "MEDIUM",
+    "avg_resolution_time": "20-45 minutes"
+  },
+  {
+    "id": "RB-003",
+    "title": "AWS EC2 Instance High CPU",
+    "category": "AWS Infrastructure",
+    "symptoms": ["high cpu", "cpu utilization", "instance performance degraded", "slow response", "cpu spike"],
+    "root_causes": ["Runaway process or memory leak", "Insufficient instance type for workload", "Unexpected traffic spike", "Inefficient database queries", "Background jobs consuming resources"],
+    "resolution_steps": [
+      "Check CloudWatch metrics for CPU utilization trend over last 1-6 hours",
+      "SSH into the instance and run: top or htop to identify the consuming process",
+      "Review application logs for error spikes or unusual activity",
+      "If traffic spike: enable Auto Scaling or scale up the instance type",
+      "If runaway process: identify PID and investigate before killing",
+      "Consider moving to a compute-optimized instance type (C-series) if persistent",
+      "Set CloudWatch alarm for CPU > 80% for proactive alerting"
+    ],
+    "severity": "HIGH",
+    "avg_resolution_time": "10-20 minutes"
+  },
+  {
+    "id": "RB-004",
+    "title": "Terraform Apply Failure",
+    "category": "Infrastructure as Code",
+    "symptoms": ["terraform apply failed", "terraform error", "resource creation failed", "state lock", "provider error"],
+    "root_causes": ["State file lock from previous failed run", "IAM permission insufficient", "Resource limit reached in AWS account", "Dependency cycle in resources", "Provider version mismatch"],
+    "resolution_steps": [
+      "Run: terraform plan to review what changes will be made before applying",
+      "If state lock: terraform force-unlock <lock-id> after confirming no active runs",
+      "Check IAM role permissions for the Terraform execution role",
+      "Review AWS service quotas if resource limit error",
+      "Run: terraform validate to check for configuration syntax errors",
+      "Check provider version constraints in versions.tf",
+      "Review terraform.tfstate for any corrupted resources and use terraform import if needed"
+    ],
+    "severity": "MEDIUM",
+    "avg_resolution_time": "15-40 minutes"
+  },
+  {
+    "id": "RB-005",
+    "title": "Prometheus Alert — Service Down",
+    "category": "Monitoring & Observability",
+    "symptoms": ["service down", "prometheus alert", "target unreachable", "endpoint not responding", "health check failing"],
+    "root_causes": ["Application crash or OOM kill", "Network policy blocking traffic", "Service misconfiguration", "Certificate expiry", "Dependency service unavailable"],
+    "resolution_steps": [
+      "Check Grafana dashboard for the affected service to identify when it went down",
+      "Verify pod/container is running: kubectl get pods -n <namespace>",
+      "Check application logs for OOM or crash signals",
+      "Verify network policies allow traffic on the required ports",
+      "Check if dependent services (database, cache, external API) are healthy",
+      "Review recent deployments that may have introduced the regression",
+      "Restart the service if no root cause found and document for RCA"
+    ],
+    "severity": "CRITICAL",
+    "avg_resolution_time": "5-15 minutes"
+  },
+  {
+    "id": "RB-006",
+    "title": "Helm Deployment Rollout Stuck",
+    "category": "Kubernetes",
+    "symptoms": ["helm upgrade", "rollout stuck", "deployment not progressing", "pods pending", "helm timeout"],
+    "root_causes": ["Insufficient cluster resources (CPU/memory)", "Image pull failure", "PodDisruptionBudget blocking rollout", "Readiness probe failing on new pods", "PersistentVolume not available"],
+    "resolution_steps": [
+      "Check rollout status: kubectl rollout status deployment/<name> -n <namespace>",
+      "Describe pending pods: kubectl describe pod <pod-name> for scheduling errors",
+      "Check node resource availability: kubectl top nodes",
+      "Review PodDisruptionBudget: kubectl get pdb -n <namespace>",
+      "If image pull issue: verify image tag exists in registry and pull secret is valid",
+      "Rollback if needed: helm rollback <release-name> <revision>",
+      "Check readiness probe configuration and increase failureThreshold if needed"
+    ],
+    "severity": "HIGH",
+    "avg_resolution_time": "10-25 minutes"
+  }
+]
