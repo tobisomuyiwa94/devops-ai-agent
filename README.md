@@ -1,6 +1,8 @@
 # DevOps AI Triage Agent
-### Tobi Somuyiwa — AI Product Engineer Demo
+Description
 
+### AI Product Engineer Demo
+AI DevOps triage agent using Claude, tool use, and RAG architecture. Built by Tobi Somuyiwa.
 ---
 
 ## What This Is
